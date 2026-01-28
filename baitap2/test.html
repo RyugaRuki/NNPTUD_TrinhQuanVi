@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Manager</title>
+    <script src="main.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        tr.deleted {
+            opacity: 0.6;
+        }
+        
+        tr.deleted td {
+            text-decoration: line-through;
+            color: gray;
+        }
+        
+        input[type="text"], input[type="submit"] {
+            padding: 8px;
+            margin: 5px;
+        }
+        
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        
+        #comments_section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        
+        #comments_section h3 {
+            margin-top: 0;
+        }
+        
+        #comments_section div {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quản lý Posts và Comments</h1>
+    
+    <h2>Danh sách Posts</h2>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>TITLE</th>
+                    <th>VIEWS</th>
+                    <th>HÀNH ĐỘNG</th>
+                </tr>
+            </thead>
+            <tbody id="body_table">
+               
+            </tbody>
+        </table>
+    </div>
+    
+    <h2>Tạo/Sửa Post</h2>
+    <div>
+        <label>ID (để trống nếu tạo mới):</label>
+        <input type="text" id="id_txt" placeholder="ID sẽ tự tăng"/>
+        
+        <label>Tiêu đề:</label>
+        <input type="text" id="title_txt" placeholder="Nhập tiêu đề"/>
+        
+        <label>Lượt xem:</label>
+        <input type="text" id="view_txt" placeholder="Nhập lượt xem"/>
+        
+        <input type="submit" value="Save" onclick="Save()">
+    </div>
+    
+    <h2>Quản lý Bình luận</h2>
+    <div id="comments_section">
+        
+    </div>
+</body>
+</html>
