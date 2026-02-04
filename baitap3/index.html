@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Dashboard - EscuelaJS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        body { background-color: #f8f9fa; }
+        .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .sortable { cursor: pointer; user-select: none; }
+        .sortable:hover { background-color: #e9ecef; }
+        /* Hiệu ứng hover cho dòng */
+        tbody tr:hover { background-color: #f1f3f5; cursor: pointer; }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .d-none { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        <h2 class="mb-4 text-primary"><i class="bi bi-speedometer2"></i> Dashboard Quản Lý Sản Phẩm</h2>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm theo Title...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="pageSize" class="form-select">
+                            <option value="5">Hiển thị 5</option>
+                            <option value="10" selected>Hiển thị 10</option>
+                            <option value="20">Hiển thị 20</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-success me-2" id="btnOpenCreate">
+                            <i class="bi bi-plus-circle"></i> Thêm Mới
+                        </button>
+                        <button class="btn btn-outline-dark" id="btnExport">
+                            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th class="sortable" id="headerTitle">
+                                    Title <i id="sortIcon-title" class="bi bi-arrow-down-up text-muted small"></i>
+                                </th>
+                                <th class="sortable" id="headerPrice">
+                                    Price <i id="sortIcon-price" class="bi bi-arrow-down-up text-muted small"></i>
+                                </th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <span id="pageInfo" class="text-muted">Đang hiển thị...</span>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item"><button class="page-link" id="btnPrev">Trước</button></li>
+                        <li class="page-item active"><span class="page-link" id="currentPageDisplay">1</span></li>
+                        <li class="page-item"><button class="page-link" id="btnNext">Sau</button></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi Tiết Sản Phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="detailImage" src="" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                    <p><strong>ID:</strong> <span id="detailId"></span></p>
+                    <p><strong>Title:</strong> <span id="detailTitle"></span></p>
+                    <p><strong>Price:</strong> $<span id="detailPrice"></span></p>
+                    <p><strong>Category:</strong> <span id="detailCategory"></span></p>
+                    <p><strong>Description:</strong></p>
+                    <p id="detailDescription" class="text-muted fst-italic bg-light p-2 rounded"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnOpenEditFromDetail">
+                        <i class="bi bi-pencil-square"></i> Chỉnh Sửa
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="formModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalTitle">Tạo Sản Phẩm Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <input type="hidden" id="formId">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" id="formTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" class="form-control" id="formPrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="formDescription" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category ID (Mặc định: 1)</label>
+                            <input type="number" class="form-control" id="formCategoryId" value="1" required>
+                            <small class="text-muted">API yêu cầu ID danh mục.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image URL</label>
+                            <input type="url" class="form-control" id="formImage" value="https://placehold.co/600x400" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" id="btnSave">Lưu Dữ Liệu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="noData" class="text-center p-5 d-none">
+    <i class="bi bi-box-seam display-1 text-muted"></i>
+    <p class="mt-2">Không tìm thấy sản phẩm nào.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
